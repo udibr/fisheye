@@ -9,6 +9,7 @@ struct ContentView: View {
     @State private var showFilePicker = false
     @State private var previewImage: NSImage?
     @State private var enableFisheye = false
+    @State private var enableCA = true
 
     private let converter = SpatialImageConverter()
     private let fisheyeProcessor = FisheyeProcessor()
@@ -38,10 +39,15 @@ struct ContentView: View {
                 fileList
             }
 
-            // Fisheye processing toggle
+            // Fisheye processing toggles
             Toggle("Canon Dual Fisheye Lens", isOn: $enableFisheye)
                 .help("Enable processing for Canon RF-S 3.9mm f/3.5 STM Dual Fisheye lens: circle detection, left/right swap, chromatic aberration correction, and equirectangular projection.")
                 .disabled(isProcessing)
+
+            if enableFisheye {
+                Toggle("Chromatic Aberration Correction", isOn: $enableCA)
+                    .disabled(isProcessing)
+            }
 
             // Controls
             HStack(spacing: 16) {
@@ -223,6 +229,10 @@ struct ContentView: View {
             let didAccessInput = inputURL.startAccessingSecurityScopedResource()
 
             do {
+                if enableFisheye && !enableCA {
+                    fisheyeProcessor.caRed = 0
+                    fisheyeProcessor.caBlue = 0
+                }
                 try converter.convert(
                     input: inputURL, output: outputURL,
                     fisheyeProcessor: enableFisheye ? fisheyeProcessor : nil)

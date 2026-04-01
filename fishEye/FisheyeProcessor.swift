@@ -30,6 +30,10 @@ final class FisheyeProcessor {
     /// Output image size in pixels (square). 0 = auto-compute from circle size.
     var outputSize: Int = 0
 
+    /// Fraction of the circle edge to trim (0.0–1.0) to remove the colored fringe
+    /// at the physical boundary of the fisheye image circle.
+    var edgeTrimFraction: Double = 0.03
+
     /// Chromatic aberration correction coefficients.
     /// Applied as radial scale per channel: r_ch = r · (1 + ca · (r/R)²).
     /// Positive pushes outward, negative inward (relative to green).
@@ -60,8 +64,8 @@ final class FisheyeProcessor {
         let leftCircle = detectCircle(in: leftEyeFisheye)
         let rightCircle = detectCircle(in: rightEyeFisheye)
 
-        // Use the smaller radius so both eyes have the same angular coverage
-        let commonRadius = min(leftCircle.radius, rightCircle.radius)
+        // Use the smaller radius, then trim the edge to remove colored fringe artifacts
+        let commonRadius = min(leftCircle.radius, rightCircle.radius) * (1.0 - edgeTrimFraction)
         let leftCircleNorm = FisheyeCircle(
             centerX: leftCircle.centerX, centerY: leftCircle.centerY, radius: commonRadius)
         let rightCircleNorm = FisheyeCircle(
