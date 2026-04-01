@@ -35,7 +35,5 @@ For visionOS Photos to recognize a HEIC as a spatial image, the following metada
 All keys above are available since macOS 13.0 / iOS 16.0 (ImageIO framework).
 
 ## Reference
-https://blog.mikeswanson.com/spatial-video/
-https://blog.mikeswanson.com/spatial/
 the ``./examples/0S9A9186.heic`` file is a working spatial photo.
 

@@ -8,8 +8,10 @@ struct ContentView: View {
     @State private var progress: Double = 0
     @State private var showFilePicker = false
     @State private var previewImage: NSImage?
+    @State private var enableFisheye = false
 
     private let converter = SpatialImageConverter()
+    private let fisheyeProcessor = FisheyeProcessor()
 
     private let supportedTypes: [UTType] = [
         UTType(filenameExtension: "cr3") ?? .rawImage,
@@ -35,6 +37,11 @@ struct ContentView: View {
             if !inputURLs.isEmpty {
                 fileList
             }
+
+            // Fisheye processing toggle
+            Toggle("Canon Dual Fisheye Lens", isOn: $enableFisheye)
+                .help("Enable processing for Canon RF-S 3.9mm f/3.5 STM Dual Fisheye lens: circle detection, left/right swap, chromatic aberration correction, and equirectangular projection.")
+                .disabled(isProcessing)
 
             // Controls
             HStack(spacing: 16) {
@@ -216,7 +223,9 @@ struct ContentView: View {
             let didAccessInput = inputURL.startAccessingSecurityScopedResource()
 
             do {
-                try converter.convert(input: inputURL, output: outputURL)
+                try converter.convert(
+                    input: inputURL, output: outputURL,
+                    fisheyeProcessor: enableFisheye ? fisheyeProcessor : nil)
                 if FileManager.default.fileExists(atPath: outputURL.path) {
                     successCount += 1
                 } else {

@@ -26,11 +26,32 @@ enum ConversionError: LocalizedError {
 final class SpatialImageConverter {
     private let ciContext = CIContext(options: [.useSoftwareRenderer: false])
 
-    /// Full conversion pipeline: load side-by-side image, split, write spatial HEIC.
-    func convert(input: URL, output: URL) throws {
+    /// Full conversion pipeline: load image, optionally process fisheye, write spatial HEIC.
+    func convert(input: URL, output: URL, fisheyeProcessor: FisheyeProcessor? = nil) throws {
         let fullImage = try loadImage(from: input)
-        let (left, right) = try splitSideBySide(image: fullImage)
-        try writeSpatialHEIC(leftImage: left, rightImage: right, to: output)
+
+        let left: CGImage
+        let right: CGImage
+        let baselineMeters: Double
+        let horizontalFOV: Double
+
+        if let processor = fisheyeProcessor {
+            let result = processor.process(fullImage: fullImage)
+            left = result.left
+            right = result.right
+            baselineMeters = 0.060  // Canon dual fisheye: 60mm
+            horizontalFOV = processor.outputFOVDegrees
+        } else {
+            let pair = try splitSideBySide(image: fullImage)
+            left = pair.left
+            right = pair.right
+            baselineMeters = 0.064
+            horizontalFOV = 65.0
+        }
+
+        try writeSpatialHEIC(
+            leftImage: left, rightImage: right, to: output,
+            baselineMeters: baselineMeters, horizontalFOVDegrees: horizontalFOV)
     }
 
     // MARK: - Load Image
@@ -101,7 +122,10 @@ final class SpatialImageConverter {
     // MARK: - Write Spatial HEIC
 
     /// Create a spatial HEIC file with stereo pair metadata from left and right images.
-    func writeSpatialHEIC(leftImage: CGImage, rightImage: CGImage, to outputURL: URL) throws {
+    func writeSpatialHEIC(
+        leftImage: CGImage, rightImage: CGImage, to outputURL: URL,
+        baselineMeters: Double = 0.064, horizontalFOVDegrees: Double = 65.0
+    ) throws {
         let leftImage = stripAlpha(leftImage)
         let rightImage = stripAlpha(rightImage)
 
@@ -122,7 +146,7 @@ final class SpatialImageConverter {
         // Camera intrinsics from horizontal FOV
         let imageWidth = Double(leftImage.width)
         let imageHeight = Double(leftImage.height)
-        let horizontalFOVDegrees = 65.0
+        let horizontalFOVDegrees = horizontalFOVDegrees
         let horizontalFOVRadians = horizontalFOVDegrees / 180.0 * .pi
         let focalLength = (imageWidth * 0.5) / tan(horizontalFOVRadians * 0.5)
         let intrinsics: [Double] = [
@@ -132,7 +156,7 @@ final class SpatialImageConverter {
         ]
 
         // Camera extrinsics: baseline expressed as position difference
-        let baselineInMeters = 0.064 // 64mm
+        let baselineInMeters = baselineMeters
         let identityRotation: [Double] = [1, 0, 0, 0, 1, 0, 0, 0, 1]
         let leftPosition: [Double] = [0, 0, 0]
         let rightPosition: [Double] = [baselineInMeters, 0, 0]
