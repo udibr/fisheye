@@ -10,9 +10,11 @@ struct ContentView: View {
     @State private var previewImage: NSImage?
     @State private var enableFisheye = false
     @State private var enableCA = true
+    @State private var enableSR = false
 
     private let converter = SpatialImageConverter()
     private let fisheyeProcessor = FisheyeProcessor()
+    private let srProcessor = SuperResolutionProcessor()
 
     private let supportedTypes: [UTType] = [
         UTType(filenameExtension: "cr3") ?? .rawImage,
@@ -48,6 +50,10 @@ struct ContentView: View {
                 Toggle("Chromatic Aberration Correction", isOn: $enableCA)
                     .disabled(isProcessing)
             }
+
+            Toggle("Super Resolution (2x)", isOn: $enableSR)
+                .help("Double the resolution of both images using super resolution. Works with or without fisheye processing.")
+                .disabled(isProcessing)
 
             // Controls
             HStack(spacing: 16) {
@@ -235,7 +241,8 @@ struct ContentView: View {
                 }
                 try converter.convert(
                     input: inputURL, output: outputURL,
-                    fisheyeProcessor: enableFisheye ? fisheyeProcessor : nil)
+                    fisheyeProcessor: enableFisheye ? fisheyeProcessor : nil,
+                    srProcessor: enableSR ? srProcessor : nil)
                 if FileManager.default.fileExists(atPath: outputURL.path) {
                     successCount += 1
                 } else {

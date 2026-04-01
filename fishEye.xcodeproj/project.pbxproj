@@ -12,6 +12,7 @@
 		FA1A6A322C8B950000A1B2C3 /* SpatialImageConverter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA1A6A202C8B950000A1B2C3 /* SpatialImageConverter.swift */; };
 		FA1A6A332C8B950000A1B2C3 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FA1A6A212C8B950000A1B2C3 /* Assets.xcassets */; };
 		FA1A6A342C8B950000A1B2C3 /* FisheyeProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA1A6A242C8B950000A1B2C3 /* FisheyeProcessor.swift */; };
+		FA1A6A352C8B950000A1B2C3 /* SuperResolutionProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA1A6A252C8B950000A1B2C3 /* SuperResolutionProcessor.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -22,6 +23,7 @@
 		FA1A6A222C8B950000A1B2C3 /* fishEye.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = fishEye.entitlements; sourceTree = "<group>"; };
 		FA1A6A232C8B950000A1B2C3 /* fishEye.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = fishEye.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		FA1A6A242C8B950000A1B2C3 /* FisheyeProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FisheyeProcessor.swift; sourceTree = "<group>"; };
+		FA1A6A252C8B950000A1B2C3 /* SuperResolutionProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuperResolutionProcessor.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -50,6 +52,7 @@
 				FA1A6A1F2C8B950000A1B2C3 /* ContentView.swift */,
 				FA1A6A202C8B950000A1B2C3 /* SpatialImageConverter.swift */,
 				FA1A6A242C8B950000A1B2C3 /* FisheyeProcessor.swift */,
+				FA1A6A252C8B950000A1B2C3 /* SuperResolutionProcessor.swift */,
 				FA1A6A212C8B950000A1B2C3 /* Assets.xcassets */,
 				FA1A6A222C8B950000A1B2C3 /* fishEye.entitlements */,
 			);
@@ -137,6 +140,7 @@
 				FA1A6A312C8B950000A1B2C3 /* ContentView.swift in Sources */,
 				FA1A6A322C8B950000A1B2C3 /* SpatialImageConverter.swift in Sources */,
 				FA1A6A342C8B950000A1B2C3 /* FisheyeProcessor.swift in Sources */,
+				FA1A6A352C8B950000A1B2C3 /* SuperResolutionProcessor.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

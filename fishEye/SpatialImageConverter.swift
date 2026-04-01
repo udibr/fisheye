@@ -26,12 +26,16 @@ enum ConversionError: LocalizedError {
 final class SpatialImageConverter {
     private let ciContext = CIContext(options: [.useSoftwareRenderer: false])
 
-    /// Full conversion pipeline: load image, optionally process fisheye, write spatial HEIC.
-    func convert(input: URL, output: URL, fisheyeProcessor: FisheyeProcessor? = nil) throws {
+    /// Full conversion pipeline: load image, optionally process fisheye, optionally SR, write spatial HEIC.
+    func convert(
+        input: URL, output: URL,
+        fisheyeProcessor: FisheyeProcessor? = nil,
+        srProcessor: SuperResolutionProcessor? = nil
+    ) throws {
         let fullImage = try loadImage(from: input)
 
-        let left: CGImage
-        let right: CGImage
+        var left: CGImage
+        var right: CGImage
         let baselineMeters: Double
         let horizontalFOV: Double
 
@@ -47,6 +51,12 @@ final class SpatialImageConverter {
             right = pair.right
             baselineMeters = 0.064
             horizontalFOV = 65.0
+        }
+
+        if let sr = srProcessor {
+            let upscaled = sr.upscale(left: left, right: right)
+            left = upscaled.left
+            right = upscaled.right
         }
 
         try writeSpatialHEIC(
