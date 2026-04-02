@@ -11,6 +11,8 @@ struct ContentView: View {
     @State private var enableFisheye = false
     @State private var enableCA = true
     @State private var enableSR = false
+    @State private var selectedAlgorithm: SRAlgorithm = .lanczos
+    @State private var selectedStrategy: SRStrategy = .independent
 
     private let converter = SpatialImageConverter()
     private let fisheyeProcessor = FisheyeProcessor()
@@ -54,6 +56,33 @@ struct ContentView: View {
             Toggle("Super Resolution (2x)", isOn: $enableSR)
                 .help("Double the resolution of both images using super resolution. Works with or without fisheye processing.")
                 .disabled(isProcessing)
+
+            if enableSR {
+                HStack(spacing: 16) {
+                    Picker("Algorithm", selection: $selectedAlgorithm) {
+                        ForEach(SRAlgorithm.allCases, id: \.self) { algo in
+                            Text(algo.rawValue).tag(algo)
+                        }
+                    }
+                    .pickerStyle(.segmented)
+                    .frame(maxWidth: 200)
+
+                    Picker("Strategy", selection: $selectedStrategy) {
+                        ForEach(SRStrategy.allCases, id: \.self) { strat in
+                            Text(strat.rawValue).tag(strat)
+                        }
+                    }
+                    .pickerStyle(.segmented)
+                    .frame(maxWidth: 200)
+                }
+                .disabled(isProcessing)
+
+                if selectedAlgorithm == .coreML && !srProcessor.isCoreMLModelLoaded {
+                    Text("Add a .mlmodel SR file to the Xcode project to use Core ML.")
+                        .font(.caption)
+                        .foregroundStyle(.orange)
+                }
+            }
 
             // Controls
             HStack(spacing: 16) {
@@ -238,6 +267,10 @@ struct ContentView: View {
                 if enableFisheye && !enableCA {
                     fisheyeProcessor.caRed = 0
                     fisheyeProcessor.caBlue = 0
+                }
+                if enableSR {
+                    srProcessor.algorithm = selectedAlgorithm
+                    srProcessor.strategy = selectedStrategy
                 }
                 try converter.convert(
                     input: inputURL, output: outputURL,

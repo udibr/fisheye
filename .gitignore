@@ -4,3 +4,5 @@ DerivedData/
 *.xcworkspace
 .claude/
 outputs/
+*.pth
+*.mlpackage/
