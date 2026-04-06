@@ -253,6 +253,13 @@ struct ContentView: View {
         var errorCount = 0
         var lastError = ""
 
+        // Capture settings before entering the loop
+        let useFisheye = enableFisheye
+        let useCA = enableCA
+        let useSR = enableSR
+        let algo = selectedAlgorithm
+        let strat = selectedStrategy
+
         let didAccessOutput = outputDir.startAccessingSecurityScopedResource()
 
         for (index, inputURL) in inputURLs.enumerated() {
@@ -264,18 +271,28 @@ struct ContentView: View {
             let didAccessInput = inputURL.startAccessingSecurityScopedResource()
 
             do {
-                if enableFisheye && !enableCA {
-                    fisheyeProcessor.caRed = 0
-                    fisheyeProcessor.caBlue = 0
+                // Run heavy conversion work on a background thread
+                try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+                    DispatchQueue.global(qos: .userInitiated).async { [converter, fisheyeProcessor, srProcessor] in
+                        do {
+                            if useFisheye && !useCA {
+                                fisheyeProcessor.caRed = 0
+                                fisheyeProcessor.caBlue = 0
+                            }
+                            if useSR {
+                                srProcessor.algorithm = algo
+                                srProcessor.strategy = strat
+                            }
+                            try converter.convert(
+                                input: inputURL, output: outputURL,
+                                fisheyeProcessor: useFisheye ? fisheyeProcessor : nil,
+                                srProcessor: useSR ? srProcessor : nil)
+                            continuation.resume()
+                        } catch {
+                            continuation.resume(throwing: error)
+                        }
+                    }
                 }
-                if enableSR {
-                    srProcessor.algorithm = selectedAlgorithm
-                    srProcessor.strategy = selectedStrategy
-                }
-                try converter.convert(
-                    input: inputURL, output: outputURL,
-                    fisheyeProcessor: enableFisheye ? fisheyeProcessor : nil,
-                    srProcessor: enableSR ? srProcessor : nil)
                 if FileManager.default.fileExists(atPath: outputURL.path) {
                     successCount += 1
                 } else {
@@ -290,6 +307,9 @@ struct ContentView: View {
 
             if didAccessInput { inputURL.stopAccessingSecurityScopedResource() }
             progress = Double(index + 1) / Double(total)
+
+            // Brief yield between images to keep GPU from starving the system
+            try? await Task.sleep(nanoseconds: 50_000_000) // 50ms
         }
 
         if didAccessOutput { outputDir.stopAccessingSecurityScopedResource() }
