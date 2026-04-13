@@ -23,7 +23,7 @@ enum ConversionError: LocalizedError {
     }
 }
 
-final class SpatialImageConverter {
+final class SpatialImageConverter: @unchecked Sendable {
     private let ciContext = CIContext(options: [.useSoftwareRenderer: false])
 
     /// Full conversion pipeline: load image, optionally process fisheye, optionally SR, write spatial HEIC.

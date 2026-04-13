@@ -19,7 +19,7 @@ struct FisheyeCircle {
 /// - 60mm baseline between lens centers
 /// - Image circles ~3340px diameter on R7 sensor (6960×4640)
 /// - Prism optics swap left/right: left sensor half = right eye
-final class FisheyeProcessor {
+final class FisheyeProcessor: @unchecked Sendable {
 
     /// Lens field of view in degrees.
     var lensFOVDegrees: Double = 144.0

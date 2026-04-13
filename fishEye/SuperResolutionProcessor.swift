@@ -22,7 +22,7 @@ enum SRAlgorithm: String, CaseIterable {
 /// - Switch `algorithm` between Lanczos (classical) and Core ML (neural SR).
 /// - For Core ML, add a .mlmodel file to the Xcode project. The model should
 ///   accept an image input and produce a 2x upscaled image output.
-final class SuperResolutionProcessor {
+final class SuperResolutionProcessor: @unchecked Sendable {
 
     var strategy: SRStrategy = .independent
     var algorithm: SRAlgorithm = .lanczos
