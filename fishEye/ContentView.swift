@@ -8,10 +8,10 @@ struct ContentView: View {
     @State private var progress: Double = 0
     @State private var showFilePicker = false
     @State private var previewImage: NSImage?
-    @State private var enableFisheye = false
+    @State private var enableFisheye = true
     @State private var enableCA = true
-    @State private var enableSR = false
-    @State private var selectedAlgorithm: SRAlgorithm = .lanczos
+    @State private var enableSR = true
+    @State private var selectedAlgorithm: SRAlgorithm = .coreML
     @State private var selectedStrategy: SRStrategy = .independent
 
     private let converter = SpatialImageConverter()
